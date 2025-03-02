@@ -41,8 +41,6 @@ namespace WeatherApp.Logic.Models
         [JsonProperty("1h")]
         public double Precipitation { get; set; }
     }
-
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Clouds
     {
         [JsonProperty("all")]
