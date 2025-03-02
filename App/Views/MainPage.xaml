@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:VM="clr-namespace:App.ViewModels"
+             x:DataType="VM:MainPageViewModel"
+             x:Class="App.MainPage">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackLayout Orientation="Horizontal" Grid.ColumnSpan="3" Padding="10" Spacing="10">
+            <Entry Text="{Binding Latitude}" HorizontalOptions="FillAndExpand" Placeholder="Latitude"/>
+            <Entry Text="{Binding Longitude}" HorizontalOptions="FillAndExpand" Placeholder="Longitude"/>
+        </StackLayout>
+        <StackLayout Padding="10" Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal">
+            <Label Text="{Binding WeatherData.main.temp}"/>
+        </StackLayout>
+        <StackLayout Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="3" Padding="10" Spacing="10">
+            <Button IsEnabled="{Binding IsNotBusy}" Command="{Binding GetWeatherDataCommand}" HorizontalOptions="FillAndExpand" Text="Search"/>
+            <Button IsEnabled="{Binding IsNotBusy}" Command="{Binding GetCurrentLocationCommand}" HorizontalOptions="FillAndExpand" Text="Get from my Location"/>
+        </StackLayout>
+    </Grid>
+</ContentPage>
