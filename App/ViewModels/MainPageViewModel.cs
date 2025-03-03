@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Devices.Sensors;
 using System.Diagnostics;
 using WeatherApp.Logic.Interfaces;
 using WeatherApp.Logic.Models;
@@ -12,9 +11,10 @@ namespace App.ViewModels
         private readonly IWeatherService m_weatherService;
         private readonly IConnectivity m_connectivity;
         private readonly IGeolocation m_geoLocation;
-        [ObservableProperty] private string latitude = string.Empty;
-        [ObservableProperty] private string longitude = string.Empty;
-        [ObservableProperty] private WeatherModel weatherData;
+        [ObservableProperty] private string cityName = string.Empty;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasData), nameof(IconSource), nameof(WeatherDescription))]
+        private WeatherModel weatherData;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotBusy))]
@@ -22,6 +22,13 @@ namespace App.ViewModels
 
         //Used for buttons enabled property
         public bool IsNotBusy => !IsBusy;
+
+        public bool HasData => WeatherData is not null;
+
+        public string IconSource => WeatherData is not null ? WeatherData.Weather.First().IconImage : string.Empty;
+
+        public string WeatherDescription => WeatherData is not null ? WeatherData.Weather.First().ToString() : string.Empty;
+
         public MainPageViewModel(IWeatherService weatherService, IConnectivity connectivity, IGeolocation geolocation)
         {
             m_weatherService = weatherService;
@@ -54,9 +61,7 @@ namespace App.ViewModels
                     if (location is null)
                         return;
                 }
-                Latitude = Math.Round(location.Latitude, 3).ToString();
-                Longitude = Math.Round(location.Longitude, 3).ToString();
-                await CallWeatherService(Latitude, Longitude);
+                await CallWeatherService(Math.Round(location.Latitude, 3).ToString(), Math.Round(location.Longitude, 3).ToString());
 
             }
             catch (Exception ex)
@@ -67,8 +72,6 @@ namespace App.ViewModels
             }
             finally
             {
-                Latitude = string.Empty;
-                Longitude = string.Empty;
                 IsBusy = false;
             }
         }
@@ -78,9 +81,9 @@ namespace App.ViewModels
             if (IsBusy)
                 return;
 
-            if(string.IsNullOrWhiteSpace(Latitude) || string.IsNullOrWhiteSpace(Longitude))
+            if(string.IsNullOrWhiteSpace(CityName))
             {
-                await Shell.Current.DisplayAlert("Missing required data", "Input fields cannot be empty", "Ok");
+                await Shell.Current.DisplayAlert("Missing required data", "Input field cannot be empty", "Ok");
                 return;
             }
             if(m_connectivity.NetworkAccess != NetworkAccess.Internet)
@@ -91,7 +94,7 @@ namespace App.ViewModels
             IsBusy = true;
             try
             {
-                await CallWeatherService(Latitude, Longitude);
+                await CallWeatherService(CityName);
             }
             catch (Exception ex)
             {
@@ -101,8 +104,7 @@ namespace App.ViewModels
             }
             finally
             {
-                Latitude = string.Empty;
-                Longitude = string.Empty;
+                CityName = string.Empty;
                 IsBusy = false;
             }
         }
@@ -110,13 +112,23 @@ namespace App.ViewModels
 
         private async Task CallWeatherService(string lat, string lon)
         {
-            var result = await m_weatherService.GetWeatherDataAsync(lat, lon);
+            var result = await m_weatherService.GetCurrentWeatherDataAsync(lat, lon);
             if (result.IsSuccess)
             {
                 WeatherData = result.WeatherData;
                 return;
             }
-            await Shell.Current.DisplayAlert("Failed to get data", "Could not get weather data", "Ok");
+            await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
+        }
+        private async Task CallWeatherService(string cityName)
+        {
+            var result = await m_weatherService.GetCurrentWeatherDataByNameAsync(cityName);
+            if (result.IsSuccess)
+            {
+                WeatherData = result.WeatherData;
+                return;
+            }
+            await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
         }
     }
 }

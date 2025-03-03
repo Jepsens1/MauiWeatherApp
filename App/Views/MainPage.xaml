@@ -9,21 +9,37 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackLayout Orientation="Horizontal" Grid.ColumnSpan="3" Padding="10" Spacing="10">
-            <Entry Text="{Binding Latitude}" HorizontalOptions="FillAndExpand" Placeholder="Latitude"/>
-            <Entry Text="{Binding Longitude}" HorizontalOptions="FillAndExpand" Placeholder="Longitude"/>
+        <StackLayout Orientation="Horizontal" Grid.ColumnSpan="2" Padding="10" Spacing="10">
+            <Entry Text="{Binding CityName}" HorizontalOptions="FillAndExpand" Placeholder="City" ReturnCommand="{Binding GetWeatherDataCommand}"/>
         </StackLayout>
-        <StackLayout Padding="10" Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal">
-            <Label Text="{Binding WeatherData.main.temp}"/>
+        <StackLayout Padding="10" Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Frame IsVisible="{Binding HasData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
+                <StackLayout Orientation="Vertical">
+                    <Label Text="{Binding WeatherData.CityName, StringFormat='Current weather in {0}'}" FontSize="24" FontAttributes="Bold"/>
+                    <Label Text="{Binding WeatherData}"/>
+                </StackLayout>
+            </Frame>
+            <Frame IsVisible="{Binding HasData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
+                <VerticalStackLayout>
+                    <Label Text="{Binding WeatherData.Wind}"/>
+                </VerticalStackLayout>
+            </Frame>
+            <Frame IsVisible="{Binding HasData}"  CornerRadius="20" HorizontalOptions="FillAndExpand">
+                <VerticalStackLayout>
+                <Image Source="{Binding IconSource}"/>
+                <Label Text="{Binding WeatherDescription}"/>
+            </VerticalStackLayout>
+            </Frame>
+            <ActivityIndicator Color="Aqua" HeightRequest="100" WidthRequest="100" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}"
+                               HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand"/>
         </StackLayout>
-        <StackLayout Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="3" Padding="10" Spacing="10">
+        <StackLayout Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="2" Padding="10" Spacing="10">
             <Button IsEnabled="{Binding IsNotBusy}" Command="{Binding GetWeatherDataCommand}" HorizontalOptions="FillAndExpand" Text="Search"/>
             <Button IsEnabled="{Binding IsNotBusy}" Command="{Binding GetCurrentLocationCommand}" HorizontalOptions="FillAndExpand" Text="Get from my Location"/>
         </StackLayout>

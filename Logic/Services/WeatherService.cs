@@ -4,29 +4,76 @@ using WeatherApp.Logic.Models;
 
 namespace WeatherApp.Logic.Services
 {
-    public class WeatherService : IWeatherService
+    public class WeatherService : IWeatherService, IDisposable
     {
         private HttpClient m_httpClient;
         private string m_API_KEY = string.Empty;
-        public WeatherService(HttpClient httpClient)
+        public WeatherService(string api)
         {
-            m_httpClient = httpClient;
-            m_API_KEY = "";
+            m_httpClient = new HttpClient();
+            m_API_KEY = api;
         }
-        public async Task<WeatherResponse> GetWeatherDataAsync(string lat, string lon)
+
+        public void Dispose()
         {
-            var response = await m_httpClient.GetAsync($"{Constants.BASE_URL}?lat={lat}&lon={lon}&units=metric&&appid={m_API_KEY}");
-            if(response.IsSuccessStatusCode)
+            m_httpClient.Dispose();
+        }
+
+        public async Task<WeatherResponse> GetCurrentWeatherDataAsync(string lat, string lon)
+        {
+            if (!double.TryParse(lat, out double latitude) || !double.TryParse(lon, out double longitude))
+                return new WeatherResponse { IsSuccess = false, ErrorMessage = "Only accept numbers in input field" };
+
+            var response = await m_httpClient.GetAsync($"{Constants.BASE_URL}?lat={latitude}&lon={longitude}&units=metric&&appid={m_API_KEY}");
+            if (response.IsSuccessStatusCode)
             {
                 var data = await response.Content.ReadAsStringAsync();
-                if(string.IsNullOrWhiteSpace(data)) return new WeatherResponse{ IsSuccess = false, ErrorMessage = "Failed to read response content"};
+                if (string.IsNullOrWhiteSpace(data)) return new WeatherResponse { IsSuccess = false, ErrorMessage = "Failed to read response content" };
 
                 var weatherModel = JsonConvert.DeserializeObject<WeatherModel>(data);
-                if (weatherModel is null) return new WeatherResponse { IsSuccess = false};
+                if (weatherModel is null) return new WeatherResponse { IsSuccess = false };
 
+                weatherModel.Weather.First().IconImage = $"{Constants.ICON_URL}{weatherModel.Weather.First().Icon}@2x.png";
                 return new WeatherResponse { IsSuccess = true, WeatherData = weatherModel };
             }
-            return new WeatherResponse { IsSuccess = false, ErrorMessage = $"StatusCode: {response?.StatusCode} with response message: {response?.Content}"};
+            return new WeatherResponse { IsSuccess = false, ErrorMessage = $"StatusCode: {response?.StatusCode}" };
+        }
+
+        public async Task<WeatherResponse> GetCurrentWeatherDataByNameAsync(string cityName)
+        {
+            var response = await m_httpClient.GetAsync($"{Constants.BASE_URL}?q={cityName}&units=metric&&appid={m_API_KEY}");
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(data)) return new WeatherResponse { IsSuccess = false, ErrorMessage = "Failed to read response content" };
+
+                var weatherModel = JsonConvert.DeserializeObject<WeatherModel>(data);
+                if (weatherModel is null) return new WeatherResponse { IsSuccess = false };
+
+                weatherModel.Weather.First().IconImage = $"{Constants.ICON_URL}{weatherModel.Weather.First().Icon}@2x.png";
+                return new WeatherResponse { IsSuccess = true, WeatherData = weatherModel };
+            }
+            return new WeatherResponse { IsSuccess = false, ErrorMessage = $"StatusCode: {response?.StatusCode}" };
+        }
+
+        public async Task<WeatherResponse> GetWeatherDataAsync(string lat, string lon)
+        {
+            if (!double.TryParse(lat, out double latitude) || !double.TryParse(lon, out double longitude))
+                return new WeatherResponse { IsSuccess = false, ErrorMessage = "Only accept numbers in input field" };
+
+            var response = await m_httpClient.GetAsync($"{Constants.BASE_URL}?lat={latitude}&lon={longitude}&units=metric&&appid={m_API_KEY}");
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(data)) return new WeatherResponse { IsSuccess = false, ErrorMessage = "Failed to read response content" };
+
+                var weatherModel = JsonConvert.DeserializeObject<WeatherModel>(data);
+                if (weatherModel is null) return new WeatherResponse { IsSuccess = false };
+
+                weatherModel.Weather.First().IconImage = $"{Constants.ICON_URL}{weatherModel.Weather.First().Icon}@2x.png";
+                return new WeatherResponse { IsSuccess = true, WeatherData = weatherModel };
+            }
+            return new WeatherResponse { IsSuccess = false, ErrorMessage = $"StatusCode: {response?.StatusCode}" };
         }
     }
 }
