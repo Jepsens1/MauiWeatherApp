@@ -12,7 +12,7 @@ namespace WeatherApp.Logic.Models
 
         public override string ToString()
         {
-            return $"Latitude: {Math.Round(Latitude,2)}\tLongitude: {Math.Round(Longitude,2)}";
+            return $"Latitude: {Math.Round(Latitude, 2)}\tLongitude: {Math.Round(Longitude, 2)}";
         }
     }
 }

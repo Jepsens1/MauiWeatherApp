@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Diagnostics;
 using WeatherApp.Logic.Interfaces;
 using WeatherApp.Logic.Models;
 
@@ -20,39 +21,157 @@ namespace WeatherApp.Logic.Services
         }
         public async Task<WeatherResponse> GetWeatherDataAsync(string lat, string lon)
         {
-            if (!double.TryParse(lat, out double latitude) || !double.TryParse(lon, out double longitude))
-                return new WeatherResponse { IsSuccess = false, ErrorMessage = "Only accept numbers in input field" };
-
-            var response = await m_httpClient.GetAsync($"{Constants.CURRENT_WEATHER_URL}?lat={latitude}&lon={longitude}&units=metric&&appid={m_API_KEY}");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var data = await response.Content.ReadAsStringAsync();
-                if (string.IsNullOrWhiteSpace(data)) return new WeatherResponse { IsSuccess = false, ErrorMessage = "Failed to read response content" };
-
-                var weatherModel = JsonConvert.DeserializeObject<CurrentWeatherModel>(data);
-                if (weatherModel is null) return new WeatherResponse { IsSuccess = false };
-
-                weatherModel.Weather.First().IconImage = $"{Constants.ICON_URL}{weatherModel.Weather.First().Icon}@2x.png";
-                return new WeatherResponse { IsSuccess = true, CurrentWeatherData = weatherModel };
+                var weatherResponse = new WeatherResponse { IsSuccess = true };
+                var currentWeatherData = await GetCurrentWeatherDataAsync(lat, lon);
+                if (currentWeatherData is null)
+                {
+                    weatherResponse.CurrentWeatherData = null;
+                    weatherResponse.IsSuccess = false;
+                    weatherResponse.ErrorMessage = "Failed to get current weather data\n";
+                }
+                else
+                {
+                    weatherResponse.CurrentWeatherData = currentWeatherData;
+                }
+                var forecastWeatherData = await GetForecastWeatherDataAsync(lat, lon);
+                if (forecastWeatherData is null)
+                {
+                    weatherResponse.ForecastWeatherData = null;
+                    weatherResponse.IsSuccess = false;
+                    weatherResponse.ErrorMessage += "Failed to get forecast weather data";
+                }
+                else
+                {
+                    weatherResponse.ForecastWeatherData = forecastWeatherData;
+                }
+                return weatherResponse;
             }
-            return new WeatherResponse { IsSuccess = false, ErrorMessage = $"StatusCode: {response?.StatusCode}" };
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex);
+#endif
+                return new WeatherResponse { IsSuccess = false, ErrorMessage = "Unexpected error occured during getting data" };
+            }
         }
 
         public async Task<WeatherResponse> GetWeatherDataByNameAsync(string cityName)
         {
-            var response = await m_httpClient.GetAsync($"{Constants.CURRENT_WEATHER_URL}?q={cityName}&units=metric&&appid={m_API_KEY}");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var data = await response.Content.ReadAsStringAsync();
-                if (string.IsNullOrWhiteSpace(data)) return new WeatherResponse { IsSuccess = false, ErrorMessage = "Failed to read response content" };
-
-                var weatherModel = JsonConvert.DeserializeObject<CurrentWeatherModel>(data);
-                if (weatherModel is null) return new WeatherResponse { IsSuccess = false };
-
-                weatherModel.Weather.First().IconImage = $"{Constants.ICON_URL}{weatherModel.Weather.First().Icon}@2x.png";
-                return new WeatherResponse { IsSuccess = true, CurrentWeatherData = weatherModel };
+                var weatherResponse = new WeatherResponse { IsSuccess = true };
+                var currentWeatherData = await GetCurrentWeatherDataByNameAsync(cityName);
+                if (currentWeatherData is null)
+                {
+                    weatherResponse.CurrentWeatherData = null;
+                    weatherResponse.IsSuccess = false;
+                    weatherResponse.ErrorMessage = "Failed to get current weather data\n";
+                }
+                else
+                {
+                    weatherResponse.CurrentWeatherData = currentWeatherData;
+                }
+                var forecastWeatherData = await GetForecastWeatherByNameDataAsync(cityName);
+                if (forecastWeatherData is null)
+                {
+                    weatherResponse.ForecastWeatherData = null;
+                    weatherResponse.IsSuccess = false;
+                    weatherResponse.ErrorMessage += "Failed to get forecast weather data";
+                }
+                else
+                {
+                    weatherResponse.ForecastWeatherData = forecastWeatherData;
+                }
+                return weatherResponse;
             }
-            return new WeatherResponse { IsSuccess = false, ErrorMessage = $"StatusCode: {response?.StatusCode}" };
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex);
+#endif
+                return new WeatherResponse { IsSuccess = false, ErrorMessage = "Unexpected error occured during getting data" };
+            }
+        }
+
+
+        private async Task<CurrentWeatherModel?> GetCurrentWeatherDataAsync(string lat, string lon)
+        {
+            if (!double.TryParse(lat, out double latitude) || !double.TryParse(lon, out double longitude))
+                return null;
+
+            var response = await m_httpClient.GetAsync($"{Constants.CURRENT_WEATHER_URL}?lat={latitude}&lon={longitude}&units=metric&appid={m_API_KEY}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var data = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(data))
+                return null;
+
+            var weatherModel = JsonConvert.DeserializeObject<CurrentWeatherModel>(data);
+            if (weatherModel is null) return null;
+
+            weatherModel.Weather.ForEach(x => x.IconImage = $"{Constants.ICON_URL}{x.Icon}@2x.png");
+            return weatherModel;
+        }
+        private async Task<ForecastWeatherModel?> GetForecastWeatherDataAsync(string lat, string lon)
+        {
+            if (!double.TryParse(lat, out double latitude) || !double.TryParse(lon, out double longitude))
+                return null;
+
+            var response = await m_httpClient.GetAsync($"{Constants.FORECAST_URL}?lat={latitude}&lon={longitude}&units=metric&appid={m_API_KEY}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var data = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(data))
+                return null;
+
+            var weatherModel = JsonConvert.DeserializeObject<ForecastWeatherModel>(data);
+            if (weatherModel is null) return null;
+
+            weatherModel.Entries.ForEach(entry => entry.Weather.ForEach(x => x.IconImage = $"{Constants.ICON_URL}{x.Icon}@2x.png"));
+            return weatherModel;
+        }
+
+        private async Task<CurrentWeatherModel?> GetCurrentWeatherDataByNameAsync(string city)
+        {
+            if (string.IsNullOrEmpty(city))
+                return null;
+
+            var response = await m_httpClient.GetAsync($"{Constants.CURRENT_WEATHER_URL}?q={city}&units=metric&appid={m_API_KEY}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var data = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(data))
+                return null;
+
+            var weatherModel = JsonConvert.DeserializeObject<CurrentWeatherModel>(data);
+            if (weatherModel is null) return null;
+
+            weatherModel.Weather.ForEach(x => x.IconImage = $"{Constants.ICON_URL}{x.Icon}@2x.png");
+            return weatherModel;
+        }
+        private async Task<ForecastWeatherModel?> GetForecastWeatherByNameDataAsync(string city)
+        {
+            if (string.IsNullOrEmpty(city))
+                return null;
+
+            var response = await m_httpClient.GetAsync($"{Constants.FORECAST_URL}?q={city}&units=metric&appid={m_API_KEY}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var data = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(data))
+                return null;
+
+            var weatherModel = JsonConvert.DeserializeObject<ForecastWeatherModel>(data);
+            if (weatherModel is null) return null;
+
+            weatherModel.Entries.ForEach(entry => entry.Weather.ForEach(x => x.IconImage = $"{Constants.ICON_URL}{x.Icon}@2x.png"));
+            return weatherModel;
         }
     }
 }

@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:VM="clr-namespace:App.ViewModels"
+             xmlns:models="clr-namespace:WeatherApp.Logic.Models;assembly=WeatherApp.Logic"
              x:DataType="VM:MainPageViewModel"
              x:Class="App.MainPage">
 
@@ -19,23 +20,27 @@
             <Entry Text="{Binding CityName}" HorizontalOptions="FillAndExpand" Placeholder="City" ReturnCommand="{Binding GetWeatherDataCommand}"/>
         </StackLayout>
         <StackLayout Padding="10" Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <Frame IsVisible="{Binding HasData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
+            <Frame IsVisible="{Binding HasCurrentData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
                 <StackLayout Orientation="Vertical">
                     <StackLayout Orientation="Horizontal">
                         <Label Text="{Binding CurrentWeatherData.CityName, StringFormat='Current weather in {0}'}" 
                                FontSize="24" FontAttributes="Bold" VerticalOptions="Center"/>
-                        <Image Source="{Binding IconSource}"/>
+                        <Image Source="{Binding CurrentIconSource}"/>
                     </StackLayout>
                     <Label Text="{Binding CurrentWeatherData}"/>
                 </StackLayout>
             </Frame>
-            <Frame IsVisible="{Binding HasData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
+            <Frame IsVisible="{Binding HasForecastData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
                 <StackLayout Orientation="Vertical">
-                    <StackLayout Orientation="Horizontal">
-                        <Label Text="Daily Forecast 16 Days" FontSize="24" FontAttributes="Bold" 
-                           VerticalOptions="Center"/>
-                        <Image Source="{Binding IconSource}"/>
-                    </StackLayout>
+                    <Label Text="{Binding ForecastWeatherData.CityInformation.Name}" FontSize="24" FontAttributes="Bold"/>
+                    <Label Text="{Binding ForecastWeatherData}"/>
+                    <CollectionView ItemsSource="{Binding ForecastWeatherData.Entries}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ForecastEntry">
+                                <Label Text="{Binding .}"/>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </StackLayout>
             </Frame>
             <ActivityIndicator Color="Aqua" HeightRequest="100" WidthRequest="100" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}"
@@ -46,4 +51,5 @@
             <Button IsEnabled="{Binding IsNotBusy}" Command="{Binding GetCurrentLocationCommand}" HorizontalOptions="FillAndExpand" Text="Get from my Location"/>
         </StackLayout>
     </Grid>
+
 </ContentPage>

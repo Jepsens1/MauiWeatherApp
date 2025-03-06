@@ -31,7 +31,8 @@ namespace WeatherApp.Logic.Models
         public override string ToString()
         {
             return $"{Coord}\n{Main}\n{Wind}\n" +
-                $"Visibility: {Visibility / 1000}km\n{Rain}\t{Snow}"; //ToString handles null check
+                $"Visibility: {Visibility / 1000}km\n{Rain?.OneHourPrecipitation}\t" +
+                $"{Snow?.OneHourPrecipitation}"; //ToString handles null check
         }
     }
 }

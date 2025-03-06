@@ -1,15 +1,35 @@
-﻿namespace WeatherApp.Logic.Models
+﻿using Newtonsoft.Json;
+
+namespace WeatherApp.Logic.Models
 {
     public class ForecastEntry
     {
-        public int dt { get; set; }
-        public Main main { get; set; }
-        public List<Weather> weather { get; set; }
-        public Wind wind { get; set; }
-        public int visibility { get; set; }
-        public double pop { get; set; }
-        //public Sys sys { get; set; }
-        public string dt_txt { get; set; }
-        public Rain rain { get; set; }
+        [JsonProperty("dt")]
+        public int TimeForecastedUnixUTC { get; set; }
+
+        [JsonProperty("main")]
+        public Main Main { get; set; }
+
+        [JsonProperty("weather")]
+        public List<Weather> Weather { get; set; }
+
+        [JsonProperty("wind")]
+        public Wind Wind { get; set; }
+
+        [JsonProperty("visibility")]
+        public int Visibility { get; set; }
+
+        [JsonProperty("rain")]
+        public Rain Rain { get; set; }
+
+        [JsonProperty("snow")]
+        public Snow Snow { get; set; }
+
+        public override string ToString()
+        {
+            return $"{TimeForecastedUnixUTC}\n{Main}\n{Wind}\n" +
+                $"Visibility: {Visibility / 1000}km\n{Rain?.ThreeHourPrecipitation}\t" +
+                $"{Snow?.ThreeHourPrecipitation}"; //ToString handles null check
+        }
     }
 }

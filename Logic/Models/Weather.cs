@@ -4,9 +4,6 @@ namespace WeatherApp.Logic.Models
 {
     public class Weather
     {
-        [JsonProperty("id")]
-        public int WeatherConditionIdentifier { get; set; }
-
         [JsonProperty("main")]
         public string Main { get; set; } = string.Empty;
 

@@ -12,9 +12,15 @@ namespace App.ViewModels
         private readonly IConnectivity m_connectivity;
         private readonly IGeolocation m_geoLocation;
         [ObservableProperty] private string cityName = string.Empty;
+
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasData), nameof(IconSource), nameof(WeatherDescription))]
+        [NotifyPropertyChangedFor(nameof(HasCurrentData), nameof(CurrentIconSource))]
         private CurrentWeatherModel currentWeatherData;
+
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasForecastData))]
+        private ForecastWeatherModel forecastWeatherData;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotBusy))]
@@ -23,11 +29,11 @@ namespace App.ViewModels
         //Used for buttons enabled property
         public bool IsNotBusy => !IsBusy;
 
-        public bool HasData => CurrentWeatherData is not null;
+        public bool HasForecastData => ForecastWeatherData is not null;
+        public bool HasCurrentData => CurrentWeatherData is not null;
 
-        public string IconSource => CurrentWeatherData is not null ? CurrentWeatherData.Weather.First().IconImage : string.Empty;
+        public string CurrentIconSource => CurrentWeatherData is not null ? CurrentWeatherData.Weather.First().IconImage : string.Empty;
 
-        public string WeatherDescription => CurrentWeatherData is not null ? CurrentWeatherData.Weather.First().ToString() : string.Empty;
 
         public MainPageViewModel(IWeatherService weatherService, IConnectivity connectivity, IGeolocation geolocation)
         {
@@ -81,12 +87,12 @@ namespace App.ViewModels
             if (IsBusy)
                 return;
 
-            if(string.IsNullOrWhiteSpace(CityName))
+            if (string.IsNullOrWhiteSpace(CityName))
             {
                 await Shell.Current.DisplayAlert("Missing required data", "Input field cannot be empty", "Ok");
                 return;
             }
-            if(m_connectivity.NetworkAccess != NetworkAccess.Internet)
+            if (m_connectivity.NetworkAccess != NetworkAccess.Internet)
             {
                 await Shell.Current.DisplayAlert("Oh no", "Looks like you have no internet, please check your connection", "Ok");
                 return;
@@ -113,22 +119,24 @@ namespace App.ViewModels
         private async Task CallWeatherService(string lat, string lon)
         {
             var result = await m_weatherService.GetWeatherDataAsync(lat, lon);
-            if (result.IsSuccess)
+            if (!result.IsSuccess)
             {
+                await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
                 CurrentWeatherData = result.CurrentWeatherData;
                 return;
             }
-            await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
+            CurrentWeatherData = result.CurrentWeatherData;
+            ForecastWeatherData = result.ForecastWeatherData;
         }
         private async Task CallWeatherService(string cityName)
         {
             var result = await m_weatherService.GetWeatherDataByNameAsync(cityName);
-            if (result.IsSuccess)
+            if (!result.IsSuccess)
             {
-                CurrentWeatherData = result.CurrentWeatherData;
-                return;
+                await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
             }
-            await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
+            CurrentWeatherData = result.CurrentWeatherData;
+            ForecastWeatherData = result.ForecastWeatherData;
         }
     }
 }
