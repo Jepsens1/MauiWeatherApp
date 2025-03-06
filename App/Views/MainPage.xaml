@@ -21,20 +21,22 @@
         <StackLayout Padding="10" Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Frame IsVisible="{Binding HasData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
                 <StackLayout Orientation="Vertical">
-                    <Label Text="{Binding WeatherData.CityName, StringFormat='Current weather in {0}'}" FontSize="24" FontAttributes="Bold"/>
-                    <Label Text="{Binding WeatherData}"/>
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="{Binding CurrentWeatherData.CityName, StringFormat='Current weather in {0}'}" 
+                               FontSize="24" FontAttributes="Bold" VerticalOptions="Center"/>
+                        <Image Source="{Binding IconSource}"/>
+                    </StackLayout>
+                    <Label Text="{Binding CurrentWeatherData}"/>
                 </StackLayout>
             </Frame>
             <Frame IsVisible="{Binding HasData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
-                <VerticalStackLayout>
-                    <Label Text="{Binding WeatherData.Wind}"/>
-                </VerticalStackLayout>
-            </Frame>
-            <Frame IsVisible="{Binding HasData}"  CornerRadius="20" HorizontalOptions="FillAndExpand">
-                <VerticalStackLayout>
-                <Image Source="{Binding IconSource}"/>
-                <Label Text="{Binding WeatherDescription}"/>
-            </VerticalStackLayout>
+                <StackLayout Orientation="Vertical">
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="Daily Forecast 16 Days" FontSize="24" FontAttributes="Bold" 
+                           VerticalOptions="Center"/>
+                        <Image Source="{Binding IconSource}"/>
+                    </StackLayout>
+                </StackLayout>
             </Frame>
             <ActivityIndicator Color="Aqua" HeightRequest="100" WidthRequest="100" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}"
                                HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand"/>

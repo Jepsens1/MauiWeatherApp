@@ -14,7 +14,7 @@ namespace App.ViewModels
         [ObservableProperty] private string cityName = string.Empty;
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasData), nameof(IconSource), nameof(WeatherDescription))]
-        private WeatherModel weatherData;
+        private CurrentWeatherModel currentWeatherData;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotBusy))]
@@ -23,11 +23,11 @@ namespace App.ViewModels
         //Used for buttons enabled property
         public bool IsNotBusy => !IsBusy;
 
-        public bool HasData => WeatherData is not null;
+        public bool HasData => CurrentWeatherData is not null;
 
-        public string IconSource => WeatherData is not null ? WeatherData.Weather.First().IconImage : string.Empty;
+        public string IconSource => CurrentWeatherData is not null ? CurrentWeatherData.Weather.First().IconImage : string.Empty;
 
-        public string WeatherDescription => WeatherData is not null ? WeatherData.Weather.First().ToString() : string.Empty;
+        public string WeatherDescription => CurrentWeatherData is not null ? CurrentWeatherData.Weather.First().ToString() : string.Empty;
 
         public MainPageViewModel(IWeatherService weatherService, IConnectivity connectivity, IGeolocation geolocation)
         {
@@ -112,20 +112,20 @@ namespace App.ViewModels
 
         private async Task CallWeatherService(string lat, string lon)
         {
-            var result = await m_weatherService.GetCurrentWeatherDataAsync(lat, lon);
+            var result = await m_weatherService.GetWeatherDataAsync(lat, lon);
             if (result.IsSuccess)
             {
-                WeatherData = result.WeatherData;
+                CurrentWeatherData = result.CurrentWeatherData;
                 return;
             }
             await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
         }
         private async Task CallWeatherService(string cityName)
         {
-            var result = await m_weatherService.GetCurrentWeatherDataByNameAsync(cityName);
+            var result = await m_weatherService.GetWeatherDataByNameAsync(cityName);
             if (result.IsSuccess)
             {
-                WeatherData = result.WeatherData;
+                CurrentWeatherData = result.CurrentWeatherData;
                 return;
             }
             await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");

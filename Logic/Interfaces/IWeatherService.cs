@@ -4,7 +4,7 @@ namespace WeatherApp.Logic.Interfaces
 {
     public interface IWeatherService
     {
-        Task<WeatherResponse> GetCurrentWeatherDataAsync(string lat, string lon);
-        Task<WeatherResponse> GetCurrentWeatherDataByNameAsync(string cityName);
+        Task<WeatherResponse> GetWeatherDataAsync(string lat, string lon);
+        Task<WeatherResponse> GetWeatherDataByNameAsync(string cityName);
     }
 }
