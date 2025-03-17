@@ -19,29 +19,54 @@
         <StackLayout Orientation="Horizontal" Grid.ColumnSpan="2" Padding="10" Spacing="10">
             <Entry Text="{Binding CityName}" HorizontalOptions="FillAndExpand" Placeholder="City" ReturnCommand="{Binding GetWeatherDataCommand}"/>
         </StackLayout>
-        <StackLayout Padding="10" Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Frame IsVisible="{Binding HasCurrentData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
-                <StackLayout Orientation="Vertical">
+                <StackLayout Orientation="Vertical" Padding="10">
                     <StackLayout Orientation="Horizontal">
                         <Label Text="{Binding CurrentWeatherData.CityName, StringFormat='Current weather in {0}'}" 
-                               FontSize="24" FontAttributes="Bold" VerticalOptions="Center"/>
+                               FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
                         <Image Source="{Binding CurrentIconSource}"/>
                     </StackLayout>
-                    <Label Text="{Binding CurrentWeatherData}"/>
+                    <Label Text="{Binding CurrentWeatherData.Coord}"/>
+                    <Label Text="{Binding CurrentWeatherDescription, StringFormat='Summary: {0}'}"/>
+                    <Label Text="{Binding CurrentWeatherData.Main}"/>
+                    <Label Text="{Binding CurrentWeatherData.Wind}"/>
+                    <Label Text="{Binding CurrentWeatherData.VisibilityInKM, StringFormat='{0}km'}"/>
+                    <Label Text="{Binding CurrentWeatherData.Rain.OneHourPrecipitation, FallbackValue='Rain: 0%', StringFormat='Rain: {0}%'}"/>
+                    <Label Text="{Binding CurrentWeatherData.Snow.OneHourPrecipitation, FallbackValue='Snow: 0%', StringFormat='Snow: {0}%'}"/>
                 </StackLayout>
             </Frame>
+
             <Frame IsVisible="{Binding HasForecastData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
-                <StackLayout Orientation="Vertical">
-                    <Label Text="{Binding ForecastWeatherData.CityInformation.Name}" FontSize="24" FontAttributes="Bold"/>
-                    <Label Text="{Binding ForecastWeatherData}"/>
-                    <CollectionView ItemsSource="{Binding ForecastWeatherData.Entries}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:ForecastEntry">
-                                <Label Text="{Binding .}"/>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </StackLayout>
+                <CollectionView ItemsSource="{Binding ForecastWeatherData.GroupedData}" IsGrouped="True">
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate x:DataType="models:ForecastGroup">
+                            <Label Text="{Binding Date}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Start"/>
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:ForecastEntry">
+                            <StackLayout Orientation="Vertical" Padding="10">
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type VM:MainPageViewModel}}, Path=ToggleExpandCommand}" CommandParameter="{Binding .}"/>
+                                </StackLayout.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding ForecastedDatetimeFormatted}" FontAttributes="Bold"/>
+                                    <Image Grid.Column="1" HeightRequest="40" WidthRequest="40" Source="arrow.png" Rotation="{Binding IsExpanded, Converter={StaticResource BooleanToRotationConverter}}"/>
+                                </Grid>
+                                <StackLayout Orientation="Vertical" IsVisible="{Binding IsExpanded}">
+                                    <Image Source="{Binding IconSource}" WidthRequest="120" HeightRequest="120"/>
+                                    <Label Text="{Binding Description, StringFormat='Summary: {0}'}"/>
+                                    <Label Text="{Binding Main}"/>
+                                    <Label Text="{Binding Wind}"/>
+                                    <Label Text="{Binding VisibilityInKM, StringFormat='{0}km'}"/>
+                                    <Label Text="{Binding Rain.ThreeHourPrecipitation, FallbackValue='Rain 0%', StringFormat='Rain {0}%'}"/>
+                                    <Label Text="{Binding Snow.ThreeHourPrecipitation, FallbackValue='Snow: 0%', StringFormat='Snow: {0}%'}"/>
+                                </StackLayout>
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </Frame>
             <ActivityIndicator Color="Aqua" HeightRequest="100" WidthRequest="100" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}"
                                HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand"/>

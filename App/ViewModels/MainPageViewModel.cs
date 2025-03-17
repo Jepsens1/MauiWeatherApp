@@ -14,13 +14,13 @@ namespace App.ViewModels
         [ObservableProperty] private string cityName = string.Empty;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasCurrentData), nameof(CurrentIconSource))]
+        [NotifyPropertyChangedFor(nameof(HasCurrentData), nameof(CurrentIconSource), nameof(CurrentWeatherDescription))]
         private CurrentWeatherModel currentWeatherData;
 
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasForecastData))]
-        private ForecastWeatherModel forecastWeatherData;
+        private ForecastDisplayModel forecastWeatherData;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotBusy))]
@@ -34,6 +34,8 @@ namespace App.ViewModels
 
         public string CurrentIconSource => CurrentWeatherData is not null ? CurrentWeatherData.Weather.First().IconImage : string.Empty;
 
+        public string CurrentWeatherDescription => CurrentWeatherData is not null ? CurrentWeatherData.Weather.First().Description : string.Empty;
+
 
         public MainPageViewModel(IWeatherService weatherService, IConnectivity connectivity, IGeolocation geolocation)
         {
@@ -41,6 +43,10 @@ namespace App.ViewModels
             m_connectivity = connectivity;
             m_geoLocation = geolocation;
         }
+
+        [RelayCommand]
+        public static void ToggleExpand(ForecastEntry entry) => entry.IsExpanded = !entry.IsExpanded;
+
         [RelayCommand]
         public async Task GetCurrentLocation()
         {
@@ -122,8 +128,6 @@ namespace App.ViewModels
             if (!result.IsSuccess)
             {
                 await Shell.Current.DisplayAlert("Failed to get data", result.ErrorMessage, "Ok");
-                CurrentWeatherData = result.CurrentWeatherData;
-                return;
             }
             CurrentWeatherData = result.CurrentWeatherData;
             ForecastWeatherData = result.ForecastWeatherData;

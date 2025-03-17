@@ -4,9 +4,6 @@ namespace WeatherApp.Logic.Models
 {
     public class Weather
     {
-        [JsonProperty("main")]
-        public string Main { get; set; } = string.Empty;
-
         [JsonProperty("description")]
         public string Description { get; set; } = string.Empty;
 
@@ -15,10 +12,5 @@ namespace WeatherApp.Logic.Models
 
         [JsonIgnore()]
         public string IconImage { get; set; } = string.Empty;
-
-        public override string ToString()
-        {
-            return $"{Main}\t{Description}";
-        }
     }
 }

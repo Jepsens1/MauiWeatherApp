@@ -16,6 +16,7 @@ namespace WeatherApp.Logic.Models
         [JsonProperty("visibility")]
         public int Visibility { get; set; }
 
+        public string VisibilityInKM => $"Visibility: {Visibility / 1000}";
         [JsonProperty("wind")]
         public Wind Wind { get; set; }
 
@@ -27,12 +28,5 @@ namespace WeatherApp.Logic.Models
 
         [JsonProperty("name")]
         public string CityName { get; set; } = string.Empty;
-
-        public override string ToString()
-        {
-            return $"{Coord}\n{Main}\n{Wind}\n" +
-                $"Visibility: {Visibility / 1000}km\n{Rain?.OneHourPrecipitation}\t" +
-                $"{Snow?.OneHourPrecipitation}"; //ToString handles null check
-        }
     }
 }

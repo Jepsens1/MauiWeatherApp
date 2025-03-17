@@ -9,7 +9,7 @@ namespace WeatherApp.Logic.Services
     {
         private HttpClient m_httpClient;
         private string m_API_KEY = string.Empty;
-        public WeatherService(string api)
+        public WeatherService(string api = "")
         {
             m_httpClient = new HttpClient();
             m_API_KEY = api;
@@ -44,7 +44,16 @@ namespace WeatherApp.Logic.Services
                 }
                 else
                 {
-                    weatherResponse.ForecastWeatherData = forecastWeatherData;
+                    var groupedData = new List<ForecastGroup>(
+                        forecastWeatherData.Entries.OrderBy(f => f.TimeForecastedDateTime)
+                        .GroupBy(f => f.TimeForecastedDateTime.Date)
+                        .OrderBy(g => g.Key)
+                        .Select(g => new ForecastGroup(g.Key.ToString("dddd MMMM dd, yyyy"), g))
+                        );
+                    weatherResponse.ForecastWeatherData = new ForecastDisplayModel
+                    {
+                        GroupedData = groupedData
+                    };
                 }
                 return weatherResponse;
             }
@@ -82,7 +91,16 @@ namespace WeatherApp.Logic.Services
                 }
                 else
                 {
-                    weatherResponse.ForecastWeatherData = forecastWeatherData;
+                    var groupedData = new List<ForecastGroup>(
+                        forecastWeatherData.Entries.OrderBy(f => f.TimeForecastedDateTime)
+                        .GroupBy(f => f.TimeForecastedDateTime.Date)
+                        .OrderBy(g => g.Key)
+                        .Select(g => new ForecastGroup(g.Key.ToString("D"), g))
+                        );
+                    weatherResponse.ForecastWeatherData = new ForecastDisplayModel
+                    {
+                        GroupedData = groupedData
+                    };
                 }
                 return weatherResponse;
             }

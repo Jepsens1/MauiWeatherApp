@@ -6,13 +6,5 @@ namespace WeatherApp.Logic.Models
     {
         [JsonProperty("list")]
         public List<ForecastEntry> Entries { get; set; }
-
-        [JsonProperty("city")]
-        public City CityInformation { get; set; }
-
-        public override string ToString()
-        {
-            return $"{CityInformation}";
-        }
     }
 }
