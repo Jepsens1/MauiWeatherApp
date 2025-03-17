@@ -2,6 +2,9 @@
 using Newtonsoft.Json.Serialization;
 namespace WeatherApp.Logic.Models
 {
+    /// <summary>
+    /// Model for deserialize current weather data from openweathermap
+    /// </summary>
     public class CurrentWeatherModel
     {
         [JsonProperty("coord")]
@@ -15,7 +18,12 @@ namespace WeatherApp.Logic.Models
 
         [JsonProperty("visibility")]
         public int Visibility { get; set; }
+        [JsonIgnore()]
+        public string IconSource => Weather is not null ? Weather.First().IconImage : string.Empty;
+        [JsonIgnore()]
+        public string WeatherDescription => Weather is not null ? Weather.First().Description : string.Empty;
 
+        [JsonIgnore()]
         public string VisibilityInKM => $"Visibility: {Visibility / 1000}";
         [JsonProperty("wind")]
         public Wind Wind { get; set; }

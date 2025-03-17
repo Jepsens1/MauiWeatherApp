@@ -16,8 +16,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackLayout Orientation="Horizontal" Grid.ColumnSpan="2" Padding="10" Spacing="10">
-            <Entry Text="{Binding CityName}" HorizontalOptions="FillAndExpand" Placeholder="City" ReturnCommand="{Binding GetWeatherDataCommand}"/>
+        <StackLayout Orientation="Horizontal" Grid.ColumnSpan="2" Padding="10">
+            <Entry Text="{Binding CityNameInput}" HorizontalOptions="FillAndExpand" Placeholder="City" ReturnCommand="{Binding GetWeatherDataCommand}"/>
         </StackLayout>
         <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Frame IsVisible="{Binding HasCurrentData}" CornerRadius="20" HorizontalOptions="FillAndExpand">
@@ -25,10 +25,10 @@
                     <StackLayout Orientation="Horizontal">
                         <Label Text="{Binding CurrentWeatherData.CityName, StringFormat='Current weather in {0}'}" 
                                FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
-                        <Image Source="{Binding CurrentIconSource}"/>
+                        <Image Source="{Binding CurrentWeatherData.IconSource}"/>
                     </StackLayout>
                     <Label Text="{Binding CurrentWeatherData.Coord}"/>
-                    <Label Text="{Binding CurrentWeatherDescription, StringFormat='Summary: {0}'}"/>
+                    <Label Text="{Binding CurrentWeatherData.WeatherDescription, StringFormat='Summary: {0}'}"/>
                     <Label Text="{Binding CurrentWeatherData.Main}"/>
                     <Label Text="{Binding CurrentWeatherData.Wind}"/>
                     <Label Text="{Binding CurrentWeatherData.VisibilityInKM, StringFormat='{0}km'}"/>
