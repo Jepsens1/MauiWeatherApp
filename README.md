@@ -19,9 +19,11 @@ Create your own `appsettings.json` and add a section called `APIKEY` and paste i
 
 # Screenshots
 ## Overview 
-![billede](https://github.com/user-attachments/assets/90e41036-3c2d-447b-910f-419b93551d52)
+![billede](https://github.com/user-attachments/assets/7f5b29fd-00d0-4be5-bc9f-74332c7f1d9c)
 
 ## Expandable tabs for each timestamp
-![billede](https://github.com/user-attachments/assets/b20f315e-7e20-4c38-9cac-3818118549c6) 
-![billede](https://github.com/user-attachments/assets/57bec58f-9104-4180-910a-ffa416297941)
+![billede](https://github.com/user-attachments/assets/74c9b43d-fa7f-4900-a9e3-4efecdb59332)
+
+![billede](https://github.com/user-attachments/assets/b2438420-a795-4238-a033-4f0b6ff78d7c)
+
 
