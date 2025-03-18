@@ -16,3 +16,12 @@ So the focus for the `Logic` project was bare minimum for getting data and gener
 git clone https://github.com/Jepsens1/MauiWeatherApp.git
 ```
 Create your own `appsettings.json` and add a section called `APIKEY` and paste in your api key from OpenWeatherMap
+
+# Screenshots
+## Overview 
+![billede](https://github.com/user-attachments/assets/90e41036-3c2d-447b-910f-419b93551d52)
+
+## Expandable tabs for each timestamp
+![billede](https://github.com/user-attachments/assets/b20f315e-7e20-4c38-9cac-3818118549c6) 
+![billede](https://github.com/user-attachments/assets/57bec58f-9104-4180-910a-ffa416297941)
+
